@@ -6,6 +6,7 @@ library(dplyr)
 library(tibble)
 library(fgsea)
 
+# Figure 4L to 4O - GSE165371 Data Mining Reanalysis 
 setwd("Project/Cerebellum")
 CB4AdultMouseOldVersion=readRDS("rawData/cb_annotated_object.RDS") #24409 genes across 611034 samples
 CB4AdultMouse <- UpdateSeuratObject(object = CB4AdultMouseOldVersion) #update seurat object from v2 to v3
@@ -16,17 +17,17 @@ pdf("CB4AdultMouseCellTypeMyUMAP.pdf",width=8)
 DimPlot(CB4AdultMouseMyUMAP,group.by="cluster",reduction="umap")&NoAxes()&theme(plot.title=element_blank(),axis.title.x = element_blank(),axis.title.y = element_blank())
 dev.off()
 
-#extract the purkinje cells
+# Extract the Purkinje Cell Cluster
 PCs=subset(CB4AdultMouseMyUMAP,cluster %in% "Purkinje") 
 
-#define the region group
+# TSNE plot to show Purkinje cell localisation within Vermis vs Hemisphere
 PCs$RegionGroup=ifelse(PCs$region%in% c("I","II","III","CUL","VI","VII","VIII","IX","X"),"Vermis","Hemispere")
 PCs<- RunTSNE(PCs, reduction = "pca", dims = 1:50)
 pdf("RegionGroup4PCs8TSNE.pdf",width=8)
 DimPlot(PCs,group.by="RegionGroup",reduction="tsne",cols=c("LightGrey","Orange"),raster=TRUE,pt.size=1)&NoAxes()&theme(plot.title=element_blank(),axis.title.x = element_blank(),axis.title.y = element_blank())
 dev.off()
 
-
+# TSNE plot to Purkinje cells localisation within the anterior vs posterior vermis
 Vermis=subset(PCs,RegionGroup %in% "Vermis")
 Vermis$regionGroup=ifelse(Vermis$region %in% c("I","II","III","CUL"),"Anterior","Posterior")
 Vermis<- RunTSNE(Vermis, reduction = "pca", dims = 1:50)
@@ -34,12 +35,12 @@ pdf("RegionGroup4Vermis8TSNE.pdf",width=8)
 DimPlot(Vermis,group.by="regionGroup",reduction="tsne",cols=c("Khaki","MediumTurquoise"),raster=TRUE,pt.size=1)&NoAxes()&theme(plot.title=element_blank(),axis.title.x = element_blank(),axis.title.y = element_blank())
 dev.off()
 
-#expression of the aldoc between anterior and posterior
+# Aldoc expression level in anterior vs posterior vermis
 pdf("AldocExprVlnPlot.pdf",width=3,height=3)
 VlnPlot(object = Vermis, features = c("Aldoc"),group.by="regionGroup")&theme(axis.title.x = element_blank(),axis.title.y = element_blank())
 dev.off()
 
-#aldoc distribution between anterior and posterior
+# Aldoc+ve vs Aldoc-ve Purkinje cell ratios within the anterior and posterior vermis
 Vermis$AdlocGroup=ifelse(Vermis$subcluster %in% c("Purkinje_Anti_Aldoc_1","Purkinje_Anti_Aldoc_2"),"AldocNeg","AldocPos")
 tmp=paste0(Vermis$regionGroup,"_",Vermis$AdlocGroup,sep="")
 tmp=data.frame(table(tmp))
@@ -59,6 +60,7 @@ pdf("AldocDisInRegion.pdf",width=6)
 print(g)
 dev.off()
 
+# Metabolic pathway analysis of Purkinje cells found in anterior lobe vs posterior lobe using KEGG pathway enrichment analysis
 Metabolism=read.table("MetabolismPathway4MouseGene.txt",header=T,sep="\t")
 fgsea_sets<- split(Metabolism$Symbol,Metabolism$PathwayName)
 VermisRegionDEG <- wilcoxauc(Vermis, 'regionGroup')
