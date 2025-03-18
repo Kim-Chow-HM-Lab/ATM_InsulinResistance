@@ -7,6 +7,7 @@ library(tibble)
 library(fgsea)
 
 # Figure 4L to 4O - GSE165371 Data Mining Reanalysis 
+# The raw data in the .RDS format can be found at https://singlecell.broadinstitute.org/single_cell/study/SCP795/
 setwd("Project/Cerebellum")
 CB4AdultMouseOldVersion=readRDS("rawData/cb_annotated_object.RDS") #24409 genes across 611034 samples
 CB4AdultMouse <- UpdateSeuratObject(object = CB4AdultMouseOldVersion) #update seurat object from v2 to v3
@@ -20,7 +21,7 @@ dev.off()
 # Extract the Purkinje Cell Cluster
 PCs=subset(CB4AdultMouseMyUMAP,cluster %in% "Purkinje") 
 
-# TSNE plot to show Purkinje cell localisation within Vermis vs Hemisphere
+# Processing the snRNA data and TSNE plot to show Purkinje cell localisation within Vermis vs Hemisphere
 PCs$RegionGroup=ifelse(PCs$region%in% c("I","II","III","CUL","VI","VII","VIII","IX","X"),"Vermis","Hemispere")
 PCs<- RunTSNE(PCs, reduction = "pca", dims = 1:50)
 pdf("RegionGroup4PCs8TSNE.pdf",width=8)
