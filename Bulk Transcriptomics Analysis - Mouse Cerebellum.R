@@ -1,4 +1,5 @@
 # Analysis of Bulk RNA extracted from mouse cerebellum
+# The raw files can be found in GSE222655
 
 # Install and load packages for analysis
 library(BiocManager)
